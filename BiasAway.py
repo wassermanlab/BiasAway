@@ -19,25 +19,16 @@ import dinuc_window_shuffling_generator as dinuc_win_shuff
 import GC_compo_matching as GC_compo
 import GC_window_compo_matching as GC_window_compo
 from utils import *
-import rpy
 
 
 def shuffling_generator(args):
   seqs, fg_gc_list, fg_lengths = get_seqs(args.fg_file)
   bg_gc_list, bg_lengths = dinuc_shuff.generate_sequences(seqs, args.nfold)
-  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-      "Generated background", "GC", "\nGC plot")
-  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-      "Generated background", "Len", "\nLength plot")
   
 
 def shuffling_window_generator(args):
   seqs, fg_gc_list, fg_lengths = get_seqs(args.fg_file)
   bg_gc_list, bg_lengths = dinuc_win_shuff.generate_sequences(seqs, args.winlen, args.step, args.nfold)
-  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-      "Generated background", "GC", "\nGC plot")
-  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-      "Generated background", "Len", "\nLength plot")
   
 
 def gc_compo_generator(args):
@@ -51,14 +42,6 @@ def gc_compo_generator_no_len(args):
   fg_gc_list, fg_gc_bins, fg_lengths = GC_compo.fg_GC_bins(args.fg_file)
   bg_gc_list, bg_gc_bins, bg_lengths = GC_compo.bg_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_compo.generate_sequences(fg_gc_bins, bg_gc_bins, args.nfold)
-  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-      "Background", "GCbefore", "\nGC plot before")
-  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-      "Matching Background", "GCafter", "GC plot after")
-  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-      "Backgronud", "Lenbefore", "\nLength plot before")
-  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-      "Matching Background", "Lenafter", "Length plot after")
 
 
 def gc_compo_len_generator(args):
@@ -66,14 +49,6 @@ def gc_compo_len_generator(args):
   bg_gc_list, bg_gc_bins, bg_lengths = GC_compo.bg_len_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_compo.generate_len_sequences(fg_gc_bins,
       bg_gc_bins, args.nfold)
-  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-      "Background", "GCbefore", "\nGC plot before")
-  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-      "Matching Background", "GCafter", "GC plot after")
-  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-      "Backgronud", "Lenbefore", "\nLength plot before")
-  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-      "Matching Background", "Lenafter", "Length plot after")
 
 
 def gc_compo_window_generator(args):
@@ -89,14 +64,6 @@ def gc_compo_len_window_generator(args):
   bg_gc_list, bg_gc_bins, bg_lengths = GC_window_compo.bg_len_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_window_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
       args.deviation, args.winlen, args.step, args.nfold)
-  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-      "Background", "GCbefore", "\nGC plot before")
-  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-      "Matching Backgronud", "GCafter", "GC plot after")
-  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-      "Backgronud", "Lenbefore", "\nLength plot before")
-  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-      "Matching Backgronud", "Lenafter", "Length plot after")
 
 
 def gc_compo_window_generator_no_len(args):
@@ -105,14 +72,6 @@ def gc_compo_window_generator_no_len(args):
   bg_gc_list, bg_gc_bins, bg_lengths = GC_window_compo.bg_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_window_compo.generate_sequences(fg_gc_bins, bg_gc_bins, args.deviation,
       args.winlen, args.step, args.nfold)
-  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-      "Background", "GCbefore", "\nGC plot before")
-  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-      "Matching Backgronud", "GCafter", "GC plot after")
-  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-      "Backgronud", "Lenbefore", "\nLength plot before")
-  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-      "Matching Backgronud", "Lenafter", "Length plot after")
 
 
 def shuffling_arg_parsing(subparsers):
