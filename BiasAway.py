@@ -2,10 +2,9 @@
 #*-* coding: utf-8 *-*
 
 ################################################################################
-# Background generator with the possibility of using very different ways of
+# BiasAway with the possibility of using very different ways of
 # generating backgrounds lying into two categories:
 # - Creation of new random sequences:
-#   - 1st-order HMM trained on foreground sequences
 #   - di-nucleotide shuffling using the foreground sequences
 #   - di-nucleotide shuffling within a sliding window using foreground sequences
 # - Extraction of sequences from a set of possible background sequences:
@@ -15,41 +14,30 @@
 ################################################################################
 
 import sys, argparse
-#import HMM_1st_order_generator as HMM
 import dinuc_shuffling_generator as dinuc_shuff
 import dinuc_window_shuffling_generator as dinuc_win_shuff
 import GC_compo_matching as GC_compo
 import GC_window_compo_matching as GC_window_compo
 from utils import *
-#import rpy
-
-
-#def HMM_1st_order_generator(args):
-#  seqs, fg_gc_list, fg_lengths = get_seqs(args.fg_file)
-#  tmpfile = HMM.create_HMM(seqs, args.fg_file)
-#  bg_gc_list, bg_lengths = HMM.generate_sequences(seqs, tmpfile, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Generated background", "GC", "\nGC plot")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Generated background", "Len", "\nLength plot")
+import rpy
 
 
 def shuffling_generator(args):
   seqs, fg_gc_list, fg_lengths = get_seqs(args.fg_file)
   bg_gc_list, bg_lengths = dinuc_shuff.generate_sequences(seqs, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Generated background", "GC", "\nGC plot")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Generated background", "Len", "\nLength plot")
+  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
+      "Generated background", "GC", "\nGC plot")
+  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
+      "Generated background", "Len", "\nLength plot")
   
 
 def shuffling_window_generator(args):
   seqs, fg_gc_list, fg_lengths = get_seqs(args.fg_file)
   bg_gc_list, bg_lengths = dinuc_win_shuff.generate_sequences(seqs, args.winlen, args.step, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Generated background", "GC", "\nGC plot")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Generated background", "Len", "\nLength plot")
+  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
+      "Generated background", "GC", "\nGC plot")
+  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
+      "Generated background", "Len", "\nLength plot")
   
 
 def gc_compo_generator(args):
@@ -63,14 +51,14 @@ def gc_compo_generator_no_len(args):
   fg_gc_list, fg_gc_bins, fg_lengths = GC_compo.fg_GC_bins(args.fg_file)
   bg_gc_list, bg_gc_bins, bg_lengths = GC_compo.bg_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_compo.generate_sequences(fg_gc_bins, bg_gc_bins, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Background", "GCbefore", "\nGC plot before")
-#  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-#      "Matching Background", "GCafter", "GC plot after")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Backgronud", "Lenbefore", "\nLength plot before")
-#  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-#      "Matching Background", "Lenafter", "Length plot after")
+  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
+      "Background", "GCbefore", "\nGC plot before")
+  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
+      "Matching Background", "GCafter", "GC plot after")
+  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
+      "Backgronud", "Lenbefore", "\nLength plot before")
+  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
+      "Matching Background", "Lenafter", "Length plot after")
 
 
 def gc_compo_len_generator(args):
@@ -78,14 +66,14 @@ def gc_compo_len_generator(args):
   bg_gc_list, bg_gc_bins, bg_lengths = GC_compo.bg_len_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_compo.generate_len_sequences(fg_gc_bins,
       bg_gc_bins, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Background", "GCbefore", "\nGC plot before")
-#  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-#      "Matching Background", "GCafter", "GC plot after")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Backgronud", "Lenbefore", "\nLength plot before")
-#  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-#      "Matching Background", "Lenafter", "Length plot after")
+  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
+      "Background", "GCbefore", "\nGC plot before")
+  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
+      "Matching Background", "GCafter", "GC plot after")
+  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
+      "Backgronud", "Lenbefore", "\nLength plot before")
+  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
+      "Matching Background", "Lenafter", "Length plot after")
 
 
 def gc_compo_window_generator(args):
@@ -101,14 +89,14 @@ def gc_compo_len_window_generator(args):
   bg_gc_list, bg_gc_bins, bg_lengths = GC_window_compo.bg_len_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_window_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
       args.deviation, args.winlen, args.step, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Background", "GCbefore", "\nGC plot before")
-#  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-#      "Matching Backgronud", "GCafter", "GC plot after")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Backgronud", "Lenbefore", "\nLength plot before")
-#  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-#      "Matching Backgronud", "Lenafter", "Length plot after")
+  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
+      "Background", "GCbefore", "\nGC plot before")
+  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
+      "Matching Backgronud", "GCafter", "GC plot after")
+  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
+      "Backgronud", "Lenbefore", "\nLength plot before")
+  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
+      "Matching Backgronud", "Lenafter", "Length plot after")
 
 
 def gc_compo_window_generator_no_len(args):
@@ -117,24 +105,14 @@ def gc_compo_window_generator_no_len(args):
   bg_gc_list, bg_gc_bins, bg_lengths = GC_window_compo.bg_GC_bins(args.bg_file)
   match_gc_list, match_lengths = GC_window_compo.generate_sequences(fg_gc_bins, bg_gc_bins, args.deviation,
       args.winlen, args.step, args.nfold)
-#  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
-#      "Background", "GCbefore", "\nGC plot before")
-#  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
-#      "Matching Backgronud", "GCafter", "GC plot after")
-#  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
-#      "Backgronud", "Lenbefore", "\nLength plot before")
-#  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
-#      "Matching Backgronud", "Lenafter", "Length plot after")
-
-
-#def HMM_arg_parsing(subparsers):
-#  parser_1 = subparsers.add_parser('1', help="1st-order HMM generator")
-#  parser_1.add_argument('-f', '--foreground', required=True, type=str,
-#      dest="fg_file", action="store", help="Foreground file in fasta format")
-#  parser_1.add_argument('-n', '--nfold', required=False, type=int, dest="nfold",
-#      action="store", default=1,
-#      help="How many background sequences per each foreground sequence will be generated (default: 1)")
-#  parser_1.set_defaults(func=HMM_1st_order_generator)
+  make_r_gc_plots(fg_gc_list, bg_gc_list, "Foreground",
+      "Background", "GCbefore", "\nGC plot before")
+  make_r_gc_plots(fg_gc_list, match_gc_list, "Foreground", 
+      "Matching Backgronud", "GCafter", "GC plot after")
+  make_r_len_plots(fg_lengths, bg_lengths, "Foreground",
+      "Backgronud", "Lenbefore", "\nLength plot before")
+  make_r_len_plots(fg_lengths, match_lengths, "Foreground",
+      "Matching Backgronud", "Lenafter", "Length plot after")
 
 
 def shuffling_arg_parsing(subparsers):
@@ -210,7 +188,6 @@ def arg_parsing():
   descr = '''Background generator with the possibility of using very
   different ways of generating backgrounds lying into two categories:
     - Creation of new random sequences (generators):
-      - 1st-order HMM trained on foreground sequences
       - di-nucleotide shuffling using the foreground sequences
       - di-nucleotide shuffling within a sliding window using foreground
         sequences
@@ -223,7 +200,6 @@ def arg_parsing():
       formatter_class=argparse.RawDescriptionHelpFormatter)
   subparsers = parser.add_subparsers(help="Choice of the generator/chooser", 
       title="Subcommands", description="Valid subcommands")
-#  HMM_arg_parsing(subparsers)
   shuffling_arg_parsing(subparsers)
   window_shuffling_arg_parsing(subparsers)
   gc_compo_arg_parsing(subparsers)
