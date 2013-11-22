@@ -1,0 +1,6 @@
+* Python should be installed on your machine (version 2.7 has been
+    tested).
+* Biopython should be installed. See
+    http://biopython.org for instructions on how to install it.
+* The rpy Python package should be installed. See http://rpy.sourceforge.net/
+    for instructions on how to install it.
