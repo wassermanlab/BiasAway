@@ -1,0 +1,11 @@
+################################################################################
+# BiasAway with the possibility of using very different ways of
+# generating backgrounds lying into two categories:
+# - Creation of new random sequences:
+#   - di-nucleotide shuffling using the foreground sequences
+#   - di-nucleotide shuffling within a sliding window using foreground sequences
+# - Extraction of sequences from a set of possible background sequences:
+#   - respecting the %GC distribution of the foreground (using %GC bins)
+#   - respecting the %GC distribution as in the previous item and also
+#   respecting the %GC composition within a sliding window for %GC bin
+################################################################################
