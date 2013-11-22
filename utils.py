@@ -1,7 +1,7 @@
 from Bio import SeqIO
 from Bio.Seq import Seq
 import tempfile, re, os, sys
-#import rpy
+import rpy
 
 
 def GC(seq): 
@@ -140,57 +140,57 @@ def split_seq(seq):
   return re.split('(N+)', seq)
 
 
-#def make_r_gc_plots(fg_gc, bg_gc, fg_label, bg_label, outpref="", msg=""):
-#  """ Compute the density GC composition plots for background and foreground
-#  """
-#  try:
-#    fg_gc_dens = rpy.r.density(fg_gc)
-#    bg_gc_dens = rpy.r.density(bg_gc)
-#    ymaxi = rpy.r.max(fg_gc_dens['y'], bg_gc_dens['y'])
-#    ylimit = rpy.r.c(0, ymaxi)
-#    xmaxi = rpy.r.max(fg_gc_dens['x'], bg_gc_dens['x'])
-#    xmini = rpy.r.min(fg_gc_dens['x'], bg_gc_dens['x'])
-#    xlimit = rpy.r.c(xmini, xmaxi)
-#    output = tempfile.mkstemp(prefix="{0:s}".format(outpref))[1]
-#    os.remove(output)
-#    rpy.r.pdf("%s.pdf"%(output))
-#    legends = rpy.r.c(bg_label, fg_label)
-#    colors = rpy.r.c("blue", "red")
-#    rpy.r.plot(bg_gc_dens, xlab="%GC content", ylab="Density",
-#        main=outpref, ylim=ylimit, xlim=xlimit, col="blue", type="l")
-#    rpy.r.points(fg_gc_dens, xlab="", ylab="", main="", col="red", type="l")
-#    rpy.r.legend("topright", legend=legends, lwd=2, lty=1, bty="n", col=colors)
-#    rpy.r.dev_off()
-#    sys.stderr.write("{0:s}: {1:s}.pdf\n".format(msg, output))
-#  except rpy.RException as exception:
-#    sys.stderr.write("\n*** ERROR ***\n")
-#    sys.stderr.write("Error in computing GC plot\n")
-#    sys.stderr.write("{0:s}".format(str(exception)))
-#
-#def make_r_len_plots(fg_len, bg_len, fg_label, bg_label, outpref="", msg=""):
-#  """ Compute the density length plot for the background, the foreground and
-#  the matching background datasets
-#  """
-#  try:
-#    fg_len_dens = rpy.r.density(fg_len)
-#    bg_len_dens = rpy.r.density(bg_len)
-#    ymaxi = rpy.r.max(fg_len_dens['y'], bg_len_dens['y'])
-#    ylimit = rpy.r.c(0, ymaxi)
-#    xmaxi = rpy.r.max(fg_len_dens['x'], bg_len_dens['x'])
-#    xmini = rpy.r.min(fg_len_dens['x'], bg_len_dens['x'])
-#    xlimit = rpy.r.c(xmini, xmaxi)
-#    legends = rpy.r.c(bg_label, fg_label)
-#    colors = rpy.r.c("blue", "red")
-#    output = tempfile.mkstemp(prefix=outpref)[1]
-#    os.remove(output)
-#    rpy.r.pdf("%s.pdf"%(output))
-#    rpy.r.plot(bg_len_dens, xlab="Length (nt)", ylab="Density", main="",
-#        ylim=ylimit, xlim=xlimit, col="blue", type="l")
-#    rpy.r.points(fg_len_dens, xlab="", ylab="", main="", col="red", type="l")
-#    rpy.r.legend("topright", legend=legends, lwd=2, lty=1, bty="n", col=colors)
-#    rpy.r.dev_off()
-#    sys.stderr.write("{0:s}: {1:s}.pdf\n".format(msg, output))
-#  except rpy.RException as exception:
-#    sys.stderr.write("\n*** ERROR ***\n")
-#    sys.stderr.write("Error in computing length plot\n")
-#    sys.stderr.write("{0:s}".format(str(exception)))
+def make_r_gc_plots(fg_gc, bg_gc, fg_label, bg_label, outpref="", msg=""):
+  """ Compute the density GC composition plots for background and foreground
+  """
+  try:
+    fg_gc_dens = rpy.r.density(fg_gc)
+    bg_gc_dens = rpy.r.density(bg_gc)
+    ymaxi = rpy.r.max(fg_gc_dens['y'], bg_gc_dens['y'])
+    ylimit = rpy.r.c(0, ymaxi)
+    xmaxi = rpy.r.max(fg_gc_dens['x'], bg_gc_dens['x'])
+    xmini = rpy.r.min(fg_gc_dens['x'], bg_gc_dens['x'])
+    xlimit = rpy.r.c(xmini, xmaxi)
+    output = tempfile.mkstemp(prefix="{0:s}".format(outpref))[1]
+    os.remove(output)
+    rpy.r.pdf("%s.pdf"%(output))
+    legends = rpy.r.c(bg_label, fg_label)
+    colors = rpy.r.c("blue", "red")
+    rpy.r.plot(bg_gc_dens, xlab="%GC content", ylab="Density",
+        main=outpref, ylim=ylimit, xlim=xlimit, col="blue", type="l")
+    rpy.r.points(fg_gc_dens, xlab="", ylab="", main="", col="red", type="l")
+    rpy.r.legend("topright", legend=legends, lwd=2, lty=1, bty="n", col=colors)
+    rpy.r.dev_off()
+    sys.stderr.write("{0:s}: {1:s}.pdf\n".format(msg, output))
+  except rpy.RException as exception:
+    sys.stderr.write("\n*** ERROR ***\n")
+    sys.stderr.write("Error in computing GC plot\n")
+    sys.stderr.write("{0:s}".format(str(exception)))
+
+def make_r_len_plots(fg_len, bg_len, fg_label, bg_label, outpref="", msg=""):
+  """ Compute the density length plot for the background, the foreground and
+  the matching background datasets
+  """
+  try:
+    fg_len_dens = rpy.r.density(fg_len)
+    bg_len_dens = rpy.r.density(bg_len)
+    ymaxi = rpy.r.max(fg_len_dens['y'], bg_len_dens['y'])
+    ylimit = rpy.r.c(0, ymaxi)
+    xmaxi = rpy.r.max(fg_len_dens['x'], bg_len_dens['x'])
+    xmini = rpy.r.min(fg_len_dens['x'], bg_len_dens['x'])
+    xlimit = rpy.r.c(xmini, xmaxi)
+    legends = rpy.r.c(bg_label, fg_label)
+    colors = rpy.r.c("blue", "red")
+    output = tempfile.mkstemp(prefix=outpref)[1]
+    os.remove(output)
+    rpy.r.pdf("%s.pdf"%(output))
+    rpy.r.plot(bg_len_dens, xlab="Length (nt)", ylab="Density", main="",
+        ylim=ylimit, xlim=xlimit, col="blue", type="l")
+    rpy.r.points(fg_len_dens, xlab="", ylab="", main="", col="red", type="l")
+    rpy.r.legend("topright", legend=legends, lwd=2, lty=1, bty="n", col=colors)
+    rpy.r.dev_off()
+    sys.stderr.write("{0:s}: {1:s}.pdf\n".format(msg, output))
+  except rpy.RException as exception:
+    sys.stderr.write("\n*** ERROR ***\n")
+    sys.stderr.write("Error in computing length plot\n")
+    sys.stderr.write("{0:s}".format(str(exception)))
