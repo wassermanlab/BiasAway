@@ -1,18 +1,21 @@
 #!/usr/bin/python
 #*-* coding: utf-8 *-*
 
-###############################################################################
-# BiasAway with the possibility of using very different ways of
-# generating backgrounds lying into two categories:
-# - Creation of new random sequences:
-#   - di-nucleotide shuffling using the foreground sequences
-#   - di-nucleotide shuffling within a sliding window using foreground
-#   sequences
-#- Extraction of sequences from a set of possible background sequences:
-#   - respecting the %GC distribution of the foreground (using %GC bins)
-#   - respecting the %GC distribution as in the previous item and also
-#     respecting the %GC composition within a sliding window for %GC bin
-###############################################################################
+"""
+BiasAway module generating adapted background for motif overrepresentation.
+
+ BiasAway with the possibility of using very different ways of
+ generating backgrounds lying into two categories:
+ - Creation of new random sequences:
+   - di-nucleotide shuffling using the foreground sequences
+   - di-nucleotide shuffling within a sliding window using foreground
+   sequences
+- Extraction of sequences from a set of possible background sequences:
+   - respecting the %GC distribution of the foreground (using %GC bins)
+   - respecting the %GC distribution as in the previous item and also
+     respecting the %GC composition within a sliding window for %GC bin
+
+"""
 
 import argparse
 import dinuc_shuffling_generator as dinuc_shuff
@@ -23,15 +26,14 @@ from utils import get_seqs
 
 
 def shuffling_generator(argu):
-    seqs, __, __ = get_seqs(argu.fg_file)
-    __, __ = dinuc_shuff.generate_sequences(seqs, argu.nfold)
+    seqs, _, _ = get_seqs(argu.fg_file)
+    _, _ = dinuc_shuff.generate_sequences(seqs, argu.nfold)
 
 
 def shuffling_window_generator(argu):
-    seqs, __, __ = get_seqs(argu.fg_file)
-    __, __ = dinuc_win_shuff.generate_sequences(seqs, argu.winlen,
-                                                argu.step,
-                                                argu.nfold)
+    seqs, _, _ = get_seqs(argu.fg_file)
+    _, _ = dinuc_win_shuff.generate_sequences(seqs, argu.winlen, argu.step,
+                                              argu.nfold)
 
 
 def gc_compo_generator(argu):
@@ -42,17 +44,15 @@ def gc_compo_generator(argu):
 
 
 def gc_compo_generator_no_len(argu):
-    __, fg_gc_bins, __ = GC_compo.fg_GC_bins(argu.fg_file)
-    __, bg_gc_bins, __ = GC_compo.bg_GC_bins(argu.bg_file)
-    __, __ = GC_compo.generate_sequences(fg_gc_bins, bg_gc_bins,
-                                         argu.nfold)
+    _, fg_gc_bins, _ = GC_compo.fg_GC_bins(argu.fg_file)
+    _, bg_gc_bins, _ = GC_compo.bg_GC_bins(argu.bg_file)
+    _, _ = GC_compo.generate_sequences(fg_gc_bins, bg_gc_bins, argu.nfold)
 
 
 def gc_compo_len_generator(argu):
-    __, fg_gc_bins, __ = GC_compo.fg_len_GC_bins(argu.fg_file)
-    __, bg_gc_bins, __ = GC_compo.bg_len_GC_bins(argu.bg_file)
-    __, __ = GC_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
-                                             argu.nfold)
+    _, fg_gc_bins, _ = GC_compo.fg_len_GC_bins(argu.fg_file)
+    _, bg_gc_bins, _ = GC_compo.bg_len_GC_bins(argu.bg_file)
+    _, _ = GC_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins, argu.nfold)
 
 
 def gc_compo_window_generator(argu):
@@ -63,22 +63,21 @@ def gc_compo_window_generator(argu):
 
 
 def gc_compo_len_window_generator(argu):
-    __, fg_gc_bins, __ = GC_window_compo.fg_len_GC_bins(argu.fg_file,
-                                                        argu.winlen, argu.step)
-    __, bg_gc_bins, __ = GC_window_compo.bg_len_GC_bins(argu.bg_file)
-    __, __ = GC_window_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
-                                                    argu.deviation,
-                                                    argu.winlen, argu.step,
-                                                    argu.nfold)
+    _, fg_gc_bins, _ = GC_window_compo.fg_len_GC_bins(argu.fg_file,
+                                                      argu.winlen, argu.step)
+    _, bg_gc_bins, _ = GC_window_compo.bg_len_GC_bins(argu.bg_file)
+    _, _ = GC_window_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
+                                                  argu.deviation, argu.winlen,
+                                                  argu.step, argu.nfold)
 
 
 def gc_compo_window_generator_no_len(argu):
-    __, fg_gc_bins, __ = GC_window_compo.fg_GC_bins(argu.fg_file, argu.winlen,
-                                                    argu.step)
-    __, bg_gc_bins, __ = GC_window_compo.bg_GC_bins(argu.bg_file)
-    __, __ = GC_window_compo.generate_sequences(fg_gc_bins, bg_gc_bins,
-                                                argu.deviation, argu.winlen,
-                                                argu.step, argu.nfold)
+    _, fg_gc_bins, _ = GC_window_compo.fg_GC_bins(argu.fg_file, argu.winlen,
+                                                  argu.step)
+    _, bg_gc_bins, _ = GC_window_compo.bg_GC_bins(argu.bg_file)
+    _, _ = GC_window_compo.generate_sequences(fg_gc_bins, bg_gc_bins,
+                                              argu.deviation, argu.winlen,
+                                              argu.step, argu.nfold)
 
 
 def shuffling_arg_parsing(subparsers):
@@ -99,8 +98,8 @@ def window_shuffling_arg_parsing(subparsers):
     help_str = "di-nucleotide shuffling within a sliding window generator"
     parser_w = subparsers.add_parser('w', help=help_str)
     parser_w.add_argument("-w", "--winlen", required=False, type=int,
-                          dest="winlen", action="store", default=200,
-                          help="Window length (default: 200)")
+                          dest="winlen", action="store", default=100,
+                          help="Window length (default: 100)")
     parser_w.add_argument("-s", "--step", required=False, type=int,
                           dest="step", action="store", default=1,
                           help="Sliding step (default: 1)")
@@ -145,8 +144,8 @@ def gc_compo_window_arg_parsing(subparsers):
                           dest="bg_file", action="store",
                           help="Background file in fasta format")
     parser_c.add_argument("-w", "--winlen", required=False, type=int,
-                          dest="winlen", action="store", default=200,
-                          help="Window length (default: 200)")
+                          dest="winlen", action="store", default=100,
+                          help="Window length (default: 100)")
     parser_c.add_argument("-s", "--step", required=False, type=int,
                           dest="step", action="store", default=1,
                           help="Sliding step (default: 1)")
@@ -185,8 +184,9 @@ def arg_parsing():
             - respecting the %GC distribution as in the previous item and also
             respecting the %GC composition within a sliding window for %GC bin
     '''
-    parser = argparse.ArgumentParser(description=descr,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=descr,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     subparsers = parser.add_subparsers(help="Choice of the generator/chooser",
                                        title="Subcommands",
                                        description="Valid subcommands")
