@@ -1,24 +1,27 @@
 from Bio import SeqIO
 from Bio.Seq import Seq
-import tempfile, re, os, sys
+import tempfile
+import re
+import os
+import sys
 import rpy
 
 
-def GC(seq): 
- """Calculates G+C content, returns the percentage (float between 0 and 100). 
- Copes mixed case sequences, and with the ambiguous nucleotide S (G or C) 
- when counting the G and C content.  The percentage is calculated against 
- the length of the sequence using A,C,G,T,S,W with Ns, e.g.:  
- >>> GC("ACTGN") 
- 50.0 
- Note that this will return zero for an empty sequence. 
- """ 
+def GC(seq):
+ """Calculates G+C content, returns the percentage (float between 0 and 100).
+ Copes mixed case sequences, and with the ambiguous nucleotide S (G or C)
+ when counting the G and C content.  The percentage is calculated against
+ the length of the sequence using A,C,G,T,S,W with Ns, e.g.:
+ >>> GC("ACTGN")
+ 50.0
+ Note that this will return zero for an empty sequence.
+ """
  try:
    gc = sum(map(seq.count, ['G','C','g','c','S','s']))
    l = sum(map(seq.count, ['G', 'C', 'A', 'T', 'S', 'W', 'g', 'c', 'a', 't',
      's', 'w']))
-   return gc*100/l 
- except ZeroDivisionError: 
+   return gc*100/l
+ except ZeroDivisionError:
    return 0
 
 
@@ -99,7 +102,7 @@ def compute_dinuc_distrib(seqs, b=False):
           first = k[0]
           for key in compo[j-1].keys():
             if key[0] == first:
-              cpt += compo[j-1][key] 
+              cpt += compo[j-1][key]
           distrib[j-1][k] = (compo[j-1][k] + 1.0) / cpt
   return distrib
 
