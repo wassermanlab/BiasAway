@@ -7,9 +7,12 @@ BiasAway module generating adapted background for motif overrepresentation.
  BiasAway with the possibility of using very different ways of
  generating backgrounds lying into two categories:
  - Creation of new random sequences:
+   - mono-nucleotide shuffling using the foreground sequences
+   - mono-nucleotide shuffling within a sliding window using foreground
+     sequences
    - di-nucleotide shuffling using the foreground sequences
    - di-nucleotide shuffling within a sliding window using foreground
-   sequences
+     sequences
 - Extraction of sequences from a set of possible background sequences:
    - respecting the %GC distribution of the foreground (using %GC bins)
    - respecting the %GC distribution as in the previous item and also
@@ -18,6 +21,8 @@ BiasAway module generating adapted background for motif overrepresentation.
 """
 
 import argparse
+import mononuc_shuffling_generator as mononuc_shuff
+import mononuc_window_shuffling_generator as mononuc_win_shuff
 import dinuc_shuffling_generator as dinuc_shuff
 import dinuc_window_shuffling_generator as dinuc_win_shuff
 import GC_compo_matching as GC_compo
@@ -25,12 +30,23 @@ import GC_window_compo_matching as GC_window_compo
 from utils import get_seqs
 
 
-def shuffling_generator(argu):
+def mononuc_shuffling_generator(argu):
+    seqs, _, _ = get_seqs(argu.fg_file)
+    _, _ = mononuc_shuff.generate_sequences(seqs, argu.nfold)
+
+
+def dinuc_shuffling_generator(argu):
     seqs, _, _ = get_seqs(argu.fg_file)
     _, _ = dinuc_shuff.generate_sequences(seqs, argu.nfold)
 
 
-def shuffling_window_generator(argu):
+def mononuc_shuffling_window_generator(argu):
+    seqs, _, _ = get_seqs(argu.fg_file)
+    _, _ = mononuc_win_shuff.generate_sequences(seqs, argu.winlen, argu.step,
+                                                argu.nfold)
+
+
+def dinuc_shuffling_window_generator(argu):
     seqs, _, _ = get_seqs(argu.fg_file)
     _, _ = dinuc_win_shuff.generate_sequences(seqs, argu.winlen, argu.step,
                                               argu.nfold)
@@ -80,7 +96,41 @@ def gc_compo_window_generator_no_len(argu):
                                               argu.step, argu.nfold)
 
 
-def shuffling_arg_parsing(subparsers):
+def mononuc_shuffling_arg_parsing(subparsers):
+    help_str = "mono-nucleotide shuffling generator"
+    parser_d = subparsers.add_parser('m', help=help_str)
+    parser_d.add_argument('-f', '--foreground', required=True, type=str,
+                          dest="fg_file", action="store",
+                          help="Foreground file in fasta format")
+    help_str = "How many background sequences per each foreground sequence "
+    help_str += "will be generated (default: 1)"
+    parser_d.add_argument('-n', '--nfold', required=False, type=int,
+                          dest="nfold", action="store", default=1,
+                          help=help_str)
+    parser_d.set_defaults(func=mononuc_shuffling_generator)
+
+
+def mononuc_window_shuffling_arg_parsing(subparsers):
+    help_str = "mono-nucleotide shuffling within a sliding window generator"
+    parser_w = subparsers.add_parser('f', help=help_str)
+    parser_w.add_argument("-w", "--winlen", required=False, type=int,
+                          dest="winlen", action="store", default=100,
+                          help="Window length (default: 100)")
+    parser_w.add_argument("-s", "--step", required=False, type=int,
+                          dest="step", action="store", default=1,
+                          help="Sliding step (default: 1)")
+    parser_w.add_argument('-f', '--foreground', required=True, type=str,
+                          dest="fg_file", action="store",
+                          help="Foreground file in fasta format")
+    help_str = "How many background sequences per each foreground sequence "
+    help_str += "will be generated (default: 1)"
+    parser_w.add_argument('-n', '--nfold', required=False, type=int,
+                          dest="nfold", action="store", default=1,
+                          help=help_str)
+    parser_w.set_defaults(func=mononuc_shuffling_window_generator)
+
+
+def dinuc_shuffling_arg_parsing(subparsers):
     parser_d = subparsers.add_parser('d',
                                      help="di-nucleotide shuffling generator")
     parser_d.add_argument('-f', '--foreground', required=True, type=str,
@@ -91,10 +141,10 @@ def shuffling_arg_parsing(subparsers):
     parser_d.add_argument('-n', '--nfold', required=False, type=int,
                           dest="nfold", action="store", default=1,
                           help=help_str)
-    parser_d.set_defaults(func=shuffling_generator)
+    parser_d.set_defaults(func=dinuc_shuffling_generator)
 
 
-def window_shuffling_arg_parsing(subparsers):
+def dinuc_window_shuffling_arg_parsing(subparsers):
     help_str = "di-nucleotide shuffling within a sliding window generator"
     parser_w = subparsers.add_parser('w', help=help_str)
     parser_w.add_argument("-w", "--winlen", required=False, type=int,
@@ -111,7 +161,7 @@ def window_shuffling_arg_parsing(subparsers):
     parser_w.add_argument('-n', '--nfold', required=False, type=int,
                           dest="nfold", action="store", default=1,
                           help=help_str)
-    parser_w.set_defaults(func=shuffling_window_generator)
+    parser_w.set_defaults(func=dinuc_shuffling_window_generator)
 
 
 def gc_compo_arg_parsing(subparsers):
@@ -174,6 +224,9 @@ def arg_parsing():
     descr = '''Background generator with the possibility of using very
     different ways of generating backgrounds lying into two categories:
         - Creation of new random sequences (generators):
+            - mono-nucleotide shuffling using the foreground sequences
+            - mono-nucleotide shuffling within a sliding window using
+                foreground sequences
             - di-nucleotide shuffling using the foreground sequences
             - di-nucleotide shuffling within a sliding window using foreground
                 sequences
@@ -190,8 +243,10 @@ def arg_parsing():
     subparsers = parser.add_subparsers(help="Choice of the generator/chooser",
                                        title="Subcommands",
                                        description="Valid subcommands")
-    shuffling_arg_parsing(subparsers)
-    window_shuffling_arg_parsing(subparsers)
+    mononuc_shuffling_arg_parsing(subparsers)
+    mononuc_window_shuffling_arg_parsing(subparsers)
+    dinuc_shuffling_arg_parsing(subparsers)
+    dinuc_window_shuffling_arg_parsing(subparsers)
     gc_compo_arg_parsing(subparsers)
     gc_compo_window_arg_parsing(subparsers)
     argu = parser.parse_args()
