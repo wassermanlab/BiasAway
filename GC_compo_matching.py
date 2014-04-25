@@ -59,12 +59,33 @@ def fg_len_GC_bins(fg_file):
     return gc_list, gc_bins, lengths
 
 
-def bg_GC_bins(bg_file):
+def print_rec(rec, stream):
+    """ Print a record to a stream output. """
+
+    stream.write("{0}\n".format(rec.format("fasta")))
+
+
+def print_in_bg_dir(gc_bins, bg_dir, with_len=False):
+    """ Print the sequences in the bg directory in bin files. """
+
+    for percent in xrange(0, 101):
+        with open("{0}/bg_bin_{1}.txt".format(bg_dir, percent), 'w') as stream:
+            if with_len:
+                for length in gc_bins[percent]:
+                    for rec in gc_bins[percent][length]:
+                        print_rec(rec, stream)
+            else:
+                for rec in gc_bins[percent]:
+                    print_rec(rec, stream)
+
+
+def bg_GC_bins(bg_file, bg_dir):
     """
     Compute G+C content for all sequences in the background.
 
     Compute and store the GC information in a list. To each G+C percentage bin,
     we associate the corresponding sequence names.
+    Files representing the binning are stored in the "bg_dir" directory.
     Return lists of GC contents, GC bins, and lengths distrib.
 
     """
@@ -72,7 +93,7 @@ def bg_GC_bins(bg_file):
     gc_bins = []
     gc_list = []
     lengths = []
-    for _ in range(0, 101):
+    for _ in xrange(0, 101):
         gc_bins.append([])
     for record in SeqIO.parse(stream, "fasta"):
         gc = GC(record.seq)
@@ -80,10 +101,11 @@ def bg_GC_bins(bg_file):
         gc_bins[gc].append(record)
         lengths.append(len(record.seq))
     stream.close()
+    print_in_bg_dir(gc_bins, bg_dir)
     return gc_list, gc_bins, lengths
 
 
-def bg_len_GC_bins(bg_file):
+def bg_len_GC_bins(bg_file, bg_dir):
     """
     Compute G+C content for all sequences in the background.
 
@@ -107,10 +129,21 @@ def bg_len_GC_bins(bg_file):
             gc_bins[gc][len(record)] = [record]
         lengths.append(len(record.seq))
     stream.close()
+    print_in_bg_dir(gc_bins, bg_dir, True)
     return gc_list, gc_bins, lengths
 
 
-def generate_sequences(fg_bins, bg_bins, nfold):
+def get_bins_from_bg_dir(bg_dir, percent):
+    """ Return the sequences from the corresponding bin file. """
+
+    with open("{0}/bg_bin_{1:d}.txt".format(bg_dir, percent)) as stream:
+        bin_seq = []
+        for record in SeqIO.parse(stream, "fasta"):
+            bin_seq.append(record)
+        return bin_seq
+
+
+def generate_sequences(fg_bins, bg_bins, bg_dir, nfold):
     """
     Choose randomly the background sequences in each bin of %GC.
 
@@ -121,22 +154,24 @@ def generate_sequences(fg_bins, bg_bins, nfold):
     """
     lengths = []
     gc_list = []
-    for i in range(0, 101):
-        if fg_bins[i]:
+    for percent in range(0, 101):
+        if fg_bins[percent]:
             random.seed()
             try:
-                nb = fg_bins[i] * nfold
-                sample = random.sample(bg_bins[i], nb)
-                gc_list.extend([i] * nb)
+                nb = fg_bins[percent] * nfold
+                if bg_bins:
+                    bin_seq = bg_bins[percent]
+                else:
+                    bin_seq = get_bins_from_bg_dir(bg_dir, percent)
+                sample = random.sample(bin_seq, nb)
+                gc_list.extend([percent] * nb)
             except ValueError:
                 sys.stderr.write("""*** WARNING ***
                     Sample larger than population for {0:d}% G+C content:
-                    {1:d} needed and {2:d} obtained\n""".format(i, fg_bins[i]
-                                                                * nfold,
-                                                                len(bg_bins[i])
-                                                                ))
-                sample = bg_bins[i]
-                gc_list.extend([i] * len(bg_bins[i]))
+                    {1:d} needed and {2:d} obtained\n""".format(
+                    percent, fg_bins[percent] * nfold, len(bin_seq)))
+                sample = bin_seq
+                gc_list.extend([percent] * len(bin_seq))
             for r in sample:
                 print r.format("fasta"),
                 lengths.append(len(r.seq))
@@ -212,7 +247,21 @@ def extract_seq_rec(size, nb, bg_keys, bg, accu, index):
         return extract_seq_rec(size, nb, bg_keys, bg, accu, index + 1)
 
 
-def generate_len_sequences(fg, bg, nfold):
+def get_bins_len_from_bg_dir(bg_dir, percent):
+    """ Return the sequences from the corresponding bin file. """
+
+    with open("{0}/bg_bin_{1:d}.txt".format(bg_dir, percent)) as stream:
+        bin_seq = {}
+        for record in SeqIO.parse(stream, "fasta"):
+            length = len(record)
+            if length in bin_seq:
+                bin_seq[length].append(record)
+            else:
+                bin_seq[length] = [record]
+        return bin_seq
+
+
+def generate_len_sequences(fg, bg, bg_dir, nfold):
     """
     Extract the sequences from the bg with similar sizes as in the fg.
 
@@ -224,22 +273,26 @@ def generate_len_sequences(fg, bg, nfold):
     random.seed()
     lengths = []
     gc_list = []
-    for i in range(0, 101):
-        if fg[i]:
-            nb = sum(fg[i].values()) * nfold
+    for percent in range(0, 101):
+        if fg[percent]:
+            nb = sum(fg[percent].values()) * nfold
             sequences = []
-            for size in fg[i].keys():
-                bg_keys = sorted(bg[i].keys())
-                nb_to_retrieve = fg[i][size] * nfold
-                seqs, _ = extract_seq_rec(size, nb_to_retrieve, bg_keys, bg[i],
-                                          [], 0)
+            for size in fg[percent].keys():
+                nb_to_retrieve = fg[percent][size] * nfold
+                if bg:
+                    bg_bins = bg[percent]
+                else:
+                    bg_bins = get_bins_len_from_bg_dir(bg_dir, percent)
+                bg_keys = sorted(bg_bins.keys())
+                seqs, _ = extract_seq_rec(size, nb_to_retrieve, bg_keys,
+                                          bg_bins, [], 0)
                 sequences.extend(seqs)
             nb_match = len(sequences)
-            gc_list.extend([i] * nb_match)
+            gc_list.extend([percent] * nb_match)
             if nb_match != nb:
                 sys.stderr.write("""*** WARNING ***
                     Sample larger than population for {0:d}% G+C content:
-                    {1:d} needed and {2:d} obtained\n""".format(i,
+                    {1:d} needed and {2:d} obtained\n""".format(percent,
                                                                 nb,
                                                                 nb_match))
             for s in sequences:
