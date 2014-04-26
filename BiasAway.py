@@ -87,19 +87,27 @@ def gc_compo_window_generator(argu):
 def gc_compo_len_window_generator(argu):
     _, fg_gc_bins, _ = GC_window_compo.fg_len_GC_bins(argu.fg_file,
                                                       argu.winlen, argu.step)
-    _, bg_gc_bins, _ = GC_window_compo.bg_len_GC_bins(argu.bg_file)
+    bg_gc_bins = None
+    if argu.bg_file:
+        _, bg_gc_bins, _ = GC_window_compo.bg_len_GC_bins(argu.bg_file,
+                                                          argu.bg_dir)
     _, _ = GC_window_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
-                                                  argu.deviation, argu.winlen,
-                                                  argu.step, argu.nfold)
+                                                  argu.bg_dir, argu.deviation,
+                                                  argu.winlen, argu.step,
+                                                  argu.nfold)
 
 
 def gc_compo_window_generator_no_len(argu):
     _, fg_gc_bins, _ = GC_window_compo.fg_GC_bins(argu.fg_file, argu.winlen,
                                                   argu.step)
-    _, bg_gc_bins, _ = GC_window_compo.bg_GC_bins(argu.bg_file, argu.bg_dir)
+    bg_gc_bins = None
+    if argu.bg_file:
+        _, bg_gc_bins, _ = GC_window_compo.bg_GC_bins(argu.bg_file,
+                                                      argu.bg_dir)
     _, _ = GC_window_compo.generate_sequences(fg_gc_bins, bg_gc_bins,
-                                              argu.deviation, argu.winlen,
-                                              argu.step, argu.nfold)
+                                              argu.bg_dir, argu.deviation,
+                                              argu.winlen, argu.step,
+                                              argu.nfold)
 
 
 def mononuc_shuffling_arg_parsing(subparsers):
@@ -173,7 +181,7 @@ def dinuc_window_shuffling_arg_parsing(subparsers):
 def gc_compo_arg_parsing(subparsers):
     help_str = "%%GC distribution-based background chooser"
     parser_g = subparsers.add_parser('g', help=help_str)
-    parser_g.add_argument("-d", "--bgdirectory", required=True, type=str,
+    parser_g.add_argument("-r", "--bgdirectory", required=True, type=str,
                           dest="bg_dir", action="store",
                           help="Background directory")
     parser_g.add_argument("-b", "--background", required=False, type=str,
@@ -199,7 +207,10 @@ def gc_compo_window_arg_parsing(subparsers):
     help_str = "%%GC distribution and %%GC composition within a sliding "
     help_str += "window background chooser"
     parser_c = subparsers.add_parser('c', help=help_str)
-    parser_c.add_argument("-b", "--background", required=True, type=str,
+    parser_c.add_argument("-r", "--bgdirectory", required=True, type=str,
+                          dest="bg_dir", action="store",
+                          help="Background directory")
+    parser_c.add_argument("-b", "--background", required=False, type=str,
                           dest="bg_file", action="store",
                           help="Background file in fasta format")
     parser_c.add_argument("-w", "--winlen", required=False, type=int,

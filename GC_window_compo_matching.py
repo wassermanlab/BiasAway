@@ -6,6 +6,8 @@ import random
 import numpy
 from utils import GC
 from Bio import SeqIO
+from GC_compo_matching import print_in_bg_dir, get_bins_from_bg_dir
+from GC_compo_matching import get_bins_len_from_bg_dir
 
 
 def GC_info(seq, win_len, step):
@@ -158,7 +160,7 @@ def fg_len_GC_bins(fg, winlen, step):
     return gc_list, avg_and_sd_len_gc_info(l_dic, tmp_gc_bins), lengths
 
 
-def bg_GC_bins(bg):
+def bg_GC_bins(bg, bg_dir):
     """
     Get %GC info for background sequences.
 
@@ -183,10 +185,11 @@ def bg_GC_bins(bg):
         gc_bins[gc].append(record)
         lengths.append(len(record.seq))
     stream.close()
+    print_in_bg_dir(gc_bins, bg_dir)
     return gc_list, gc_bins, lengths
 
 
-def bg_len_GC_bins(bg):
+def bg_len_GC_bins(bg, bg_dir):
     """
     Get lengths info for background sequences.
 
@@ -214,6 +217,7 @@ def bg_len_GC_bins(bg):
             gc_bins[gc][len(record)] = [record]
         lengths.append(len(record.seq))
     stream.close()
+    print_in_bg_dir(gc_bins, bg_dir, True)
     return gc_list, gc_bins, lengths
 
 
@@ -253,7 +257,8 @@ def extract_random_sample(bg, fg, nb, deviation, winlen, step):
     return nb, sample
 
 
-def generate_sequences(fg_bins, bg_bins, deviation, winlen, step, nfold):
+def generate_sequences(fg_bins, bg_bins, bg_dir, deviation, winlen, step,
+                       nfold):
     """
     Choose randomly the background sequences in each bin of GC%.
 
@@ -267,11 +272,13 @@ def generate_sequences(fg_bins, bg_bins, deviation, winlen, step, nfold):
     gc_list = []
     lengths = []
     for percent in range(0, 101):
-
         if fg_bins[percent][0]:
             nb = fg_bins[percent][0][0] * nfold
-            left, sample = extract_random_sample(bg_bins[percent],
-                                                 fg_bins[percent], nb,
+            if bg_bins:
+                bin_seq = bg_bins[percent]
+            else:
+                bin_seq = get_bins_from_bg_dir(bg_dir, percent)
+            left, sample = extract_random_sample(bin_seq, fg_bins[percent], nb,
                                                  deviation, winlen, step)
             if left:
                 sys.stderr.write("""\n*** WARNING ***
@@ -377,7 +384,8 @@ def extract_seq_rec(size, nb, bg_keys, bg, accu, index, fg, deviation, winlen,
                                deviation, winlen, step)
 
 
-def generate_len_sequences(fg_bins, bg_bins, deviation, winlen, step, nfold):
+def generate_len_sequences(fg_bins, bg_bins, bg_dir, deviation, winlen, step,
+                           nfold):
     """
     Choose randomly the background sequences in each bin of GC%.
 
@@ -394,14 +402,18 @@ def generate_len_sequences(fg_bins, bg_bins, deviation, winlen, step, nfold):
     for percent in xrange(0, 101):
         if fg_bins[percent][0]:
             nb = sum(fg_bins[percent][0][0].values()) * nfold
+            if bg_bins:
+                bin_seq = bg_bins[percent]
+            else:
+                bin_seq = get_bins_len_from_bg_dir(bg_dir, percent)
             sequences = []
-            bg_keys = sorted(bg_bins[percent].keys())
+            bg_keys = sorted(bin_seq.keys())
             for size in fg_bins[percent][0][0].keys():
                 nb_to_retrieve = fg_bins[percent][0][0][size] * nfold
                 seqs, _, bg_keys = extract_seq_rec(size, nb_to_retrieve,
-                                                   bg_keys, bg_bins[percent],
-                                                   [], 0, fg_bins[percent],
-                                                   deviation, winlen, step)
+                                                   bg_keys, bin_seq, [], 0,
+                                                   fg_bins[percent], deviation,
+                                                   winlen, step)
                 sequences.extend(seqs)
             nb_match = len(sequences)
             if nb_match != nb:
