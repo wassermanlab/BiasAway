@@ -283,8 +283,8 @@ def generate_sequences(fg_bins, bg_bins, bg_dir, deviation, winlen, step,
             if left:
                 sys.stderr.write("""\n*** WARNING ***
                 Sample larger than population for {0:d}% G+C content:
-                {1:d} needed and {2:d} obtained""".format(percent, nb, nb -
-                                                          left))
+                {1:d} needed and {2:d} obtained\n""".format(percent, nb, nb -
+                                                            left))
                 gc_list.extend([percent] * (nb - left))
             else:
                 gc_list.extend([percent] * nb)
@@ -419,7 +419,7 @@ def generate_len_sequences(fg_bins, bg_bins, bg_dir, deviation, winlen, step,
             if nb_match != nb:
                 sys.stderr.write("""\n*** WARNING ***
                 Sample larger than population for {0:d}% G+C content:
-                {1:d} needed and {2:d} obtained""".format(percent, nb,
+                {1:d} needed and {2:d} obtained\n""".format(percent, nb,
                                                           nb_match))
             gc_list.extend([percent] * (nb_match))
             for r in sequences:

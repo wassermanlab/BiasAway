@@ -28,6 +28,9 @@ import dinuc_window_shuffling_generator as dinuc_win_shuff
 import GC_compo_matching as GC_compo
 import GC_window_compo_matching as GC_window_compo
 from utils import get_seqs
+import sys
+import os
+import errno
 
 
 def mononuc_shuffling_generator(argu):
@@ -52,6 +55,25 @@ def dinuc_shuffling_window_generator(argu):
                                               argu.nfold)
 
 
+def test_empty_bg_dir(bg_dir):
+    if os.path.isdir(bg_dir):
+        if os.listdir(bg_dir):
+            sys.exit("### EXITING since both a non-empty background directory and a background file are given ###")
+    else:
+        try:
+            os.makedirs(bg_dir)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(bg_dir):
+                pass
+            else:
+                raise
+
+
+def test_non_empty_bg_dir(bg_dir):
+    if not (os.path.isdir(bg_dir) and os.listdir(bg_dir)):
+        sys.exit("### EXITING since the background directory does not exist or is empty ###")
+
+
 def gc_compo_generator(argu):
     if argu.len_opt:
         gc_compo_len_generator(argu)
@@ -63,7 +85,10 @@ def gc_compo_generator_no_len(argu):
     _, fg_gc_bins, _ = GC_compo.fg_GC_bins(argu.fg_file)
     bg_gc_bins = None
     if argu.bg_file:
+        test_empty_bg_dir(argu.bg_dir)
         _, bg_gc_bins, _ = GC_compo.bg_GC_bins(argu.bg_file, argu.bg_dir)
+    else:
+        test_non_empty_bg_dir(argu.bg_dir)
     _, _ = GC_compo.generate_sequences(fg_gc_bins, bg_gc_bins, argu.bg_dir,
                                        argu.nfold)
 
@@ -72,7 +97,10 @@ def gc_compo_len_generator(argu):
     _, fg_gc_bins, _ = GC_compo.fg_len_GC_bins(argu.fg_file)
     bg_gc_bins = None
     if argu.bg_file:
+        test_empty_bg_dir(argu.bg_dir)
         _, bg_gc_bins, _ = GC_compo.bg_len_GC_bins(argu.bg_file, argu.bg_dir)
+    else:
+        test_non_empty_bg_dir(argu.bg_dir)
     _, _ = GC_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins, argu.bg_dir,
                                            argu.nfold)
 
@@ -89,8 +117,11 @@ def gc_compo_len_window_generator(argu):
                                                       argu.winlen, argu.step)
     bg_gc_bins = None
     if argu.bg_file:
+        test_empty_bg_dir(argu.bg_dir)
         _, bg_gc_bins, _ = GC_window_compo.bg_len_GC_bins(argu.bg_file,
                                                           argu.bg_dir)
+    else:
+        test_non_empty_bg_dir(argu.bg_dir)
     _, _ = GC_window_compo.generate_len_sequences(fg_gc_bins, bg_gc_bins,
                                                   argu.bg_dir, argu.deviation,
                                                   argu.winlen, argu.step,
@@ -102,8 +133,11 @@ def gc_compo_window_generator_no_len(argu):
                                                   argu.step)
     bg_gc_bins = None
     if argu.bg_file:
+        test_empty_bg_dir(argu.bg_dir)
         _, bg_gc_bins, _ = GC_window_compo.bg_GC_bins(argu.bg_file,
                                                       argu.bg_dir)
+    else:
+        test_non_empty_bg_dir(argu.bg_dir)
     _, _ = GC_window_compo.generate_sequences(fg_gc_bins, bg_gc_bins,
                                               argu.bg_dir, argu.deviation,
                                               argu.winlen, argu.step,
