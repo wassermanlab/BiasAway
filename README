@@ -79,6 +79,17 @@ or  $ python BiasAway w -h
 or  $ python BiasAway g -h
 or  $ python BiasAway c -h
 
+Note that "BiasAway g" and "bBiasAway c" ask for a background repository, a
+background file can also be giving optionally. If the background repository
+contains files corresponding to %GC bins, the software will use these files and
+ignore any other background file. If the background repository is empty,
+sequences from the background files will be used and %GC bins files will be
+constructed and stored in the background directory for further usage.
+Using pre-computed %GC bins files help in speeding up the background generation
+process.
+Preprocessed background repositories can be found at:
+<a href="http://cisreg.cmmt.ubc.ca/BiasAway_background/">BiasAway background</a>
+
 
 ###############################################################################
 Reference:
