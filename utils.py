@@ -153,4 +153,4 @@ def compute_nt_distrib(seqs):
 
 
 def split_seq(seq):
-    return re.split('(N+)', seq)
+    return re.split('([!ACGT]+)', seq)
