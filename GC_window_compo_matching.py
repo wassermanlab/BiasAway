@@ -1,5 +1,5 @@
 import sys, random, numpy
-from utils import GC 
+from utils import GC
 from Bio import SeqIO
 
 
@@ -7,13 +7,13 @@ def GC_info(seq, win_len, step):
   """Calculates G+C content, minimal %GC in sliding windows, maximal %GC in
   sliding windows, stdev of %GC in sliding windows, and CV of %GC in sliding
   windows
-  For GC content, it returns the percentage (float between 0 and 100). 
-  Copes mixed case sequences, and with the ambiguous nucleotide S (G or C) 
-  when counting the G and C content.  The percentage is calculated against 
-  the length of the sequence using A,C,G,T,S,W with Ns, e.g.:  
-  >>> GC("ACTGN") 
-  50.0 
-  Note that this will return zero for an empty sequence. 
+  For GC content, it returns the percentage (float between 0 and 100).
+  Copes mixed case sequences, and with the ambiguous nucleotide S (G or C)
+  when counting the G and C content.  The percentage is calculated against
+  the length of the sequence using A,C,G,T,S,W with Ns, e.g.:
+  >>> GC("ACTGN")
+  50.0
+  Note that this will return zero for an empty sequence.
   """
   gc = GC(seq)
   tmp_gc = []
@@ -22,7 +22,8 @@ def GC_info(seq, win_len, step):
   for i in range(0, len(seq) - win_len):
     tmp_gc.append(GC(seq[i:i+win_len]))
   sd = numpy.std(tmp_gc)
-  return gc, min(tmp_gc), max(tmp_gc), sd, 100*sd/gc
+  # Applying +1 to GC to make sure we do not divide by 1
+  return gc, min(tmp_gc), max(tmp_gc), sd, 100.*sd/(gc+1.)
 
 
 def avg_and_sd_gc_info(gc_info):
@@ -171,7 +172,7 @@ def bg_len_GC_bins(bg):
 
 
 def inside(val, center, stdev, deviation):
-  return (val >= center - deviation * stdev and 
+  return (val >= center - deviation * stdev and
       val <= center + deviation * stdev)
 
 
