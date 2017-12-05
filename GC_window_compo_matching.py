@@ -34,7 +34,8 @@ def GC_info(seq, win_len, step):
     for i in range(0, len(seq) - win_len):
         tmp_gc.append(GC(seq[i:i + win_len]))
     sd = numpy.std(tmp_gc)
-    return gc, min(tmp_gc), max(tmp_gc), sd, 100 * sd / gc
+    # Applying +1 to GC to make sure we do not divide by 0
+    return gc, min(tmp_gc), max(tmp_gc), sd, 100. * sd / (gc+1.)
 
 
 def avg_and_sd_gc_info(gc_info):
